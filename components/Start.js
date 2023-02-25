@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { StyleSheet, View, Text, TextInput, TouchableOpacity, ImageBackground, Image } from 'react-native';
 import backgroundImage from '../assets/homeBG.png';
 
-
+//Color theme list
 const backgroundColors = {
     black: { backgroundColor: "#090C08" },
     purple: { backgroundColor: "#474056" },
@@ -20,6 +20,7 @@ export default class Home extends Component {
     }
 
     componentDidMount() {
+        //Default theme color is grey
         this.setState({ color: '#8A95A5' });
     }
 
@@ -32,7 +33,7 @@ export default class Home extends Component {
                         <Text style={styles.title}>Chat App</Text>
                         <View style={styles.settingBox}>
                             <View style={styles.inputContainer}>
-                                <Image source={require('../assets/userIcon.svg')} style={styles.userIcon} />
+                                <Image source={require('../assets/icon.png')} style={styles.userIcon} />
                                 <TextInput
                                     style={styles.input}
                                     value={this.state.name}
@@ -43,25 +44,25 @@ export default class Home extends Component {
                             <View>
                                 <Text style={styles.chooseText}>Choose Background Color:</Text>
                                 <View style={styles.colorBox}>
-                                    <TouchableOpacity style={[styles.outer, this.state.color === '#090C08' && { borderColor: '#757083' }]}>
+                                    <TouchableOpacity style={[styles.outer, this.state.color === black.backgroundColor && { borderColor: '#757083' }]}>
                                         <TouchableOpacity
                                             style={[styles.colorCircle, { backgroundColor: black.backgroundColor }]}
                                             onPress={() => this.setState({ color: black.backgroundColor })}
                                         />
                                     </TouchableOpacity>
-                                    <TouchableOpacity style={[styles.outer, this.state.color === '#474056' && { borderColor: '#757083' }]}>
+                                    <TouchableOpacity style={[styles.outer, this.state.color === purple.backgroundColor && { borderColor: '#757083' }]}>
                                         <TouchableOpacity
                                             style={[styles.colorCircle, { backgroundColor: purple.backgroundColor }]}
                                             onPress={() => this.setState({ color: purple.backgroundColor })}
                                         />
                                     </TouchableOpacity>
-                                    <TouchableOpacity style={[styles.outer, this.state.color === '#8A95A5' && { borderColor: '#757083' }]}>
+                                    <TouchableOpacity style={[styles.outer, this.state.color === grey.backgroundColor && { borderColor: '#757083' }]}>
                                         <TouchableOpacity
                                             style={[styles.colorCircle, { backgroundColor: grey.backgroundColor }]}
                                             onPress={() => this.setState({ color: grey.backgroundColor })}
                                         />
                                     </TouchableOpacity>
-                                    <TouchableOpacity style={[styles.outer, this.state.color === '#B9C6AE' && { borderColor: '#757083' }]}>
+                                    <TouchableOpacity style={[styles.outer, this.state.color === green.backgroundColor && { borderColor: '#757083' }]}>
                                         <TouchableOpacity
                                             style={[styles.colorCircle, { backgroundColor: green.backgroundColor }]}
                                             onPress={() => this.setState({ color: green.backgroundColor })}
