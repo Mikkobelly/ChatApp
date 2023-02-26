@@ -16,6 +16,6 @@ Chat App is an application for mobile device (both Androind and iOS) which provi
 ### Technologies: 
 * React Native
 * Expo
-* 
+* Gifted Chat
 
 

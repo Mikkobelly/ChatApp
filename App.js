@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { StyleSheet, View, Text } from 'react-native';
+// import { StyleSheet, View, Text } from 'react-native';
 //Import Start and Chat screens
 import Start from './components/Start';
 import Chat from './components/Chat';
@@ -27,7 +27,3 @@ export default class App extends Component {
     );
   }
 }
-
-const styles = StyleSheet.create({
-
-})

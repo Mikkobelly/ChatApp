@@ -10,7 +10,7 @@ const backgroundColors = {
     green: { backgroundColor: "#B9C6AE" },
 };
 
-export default class Home extends Component {
+export default class Start extends Component {
     constructor(props) {
         super(props);
         this.state = {
@@ -46,24 +46,36 @@ export default class Home extends Component {
                                 <View style={styles.colorBox}>
                                     <TouchableOpacity style={[styles.outer, this.state.color === black.backgroundColor && { borderColor: '#757083' }]}>
                                         <TouchableOpacity
+                                            accessibilityLabel="Theme color option: black"
+                                            accessibilityHint="Let’s you choose the theme color for the chat screen"
+                                            accessibilityRole="button"
                                             style={[styles.colorCircle, { backgroundColor: black.backgroundColor }]}
                                             onPress={() => this.setState({ color: black.backgroundColor })}
                                         />
                                     </TouchableOpacity>
                                     <TouchableOpacity style={[styles.outer, this.state.color === purple.backgroundColor && { borderColor: '#757083' }]}>
                                         <TouchableOpacity
+                                            accessibilityLabel="Theme color option: purple"
+                                            accessibilityHint="Let’s you choose the theme color for the chat screen"
+                                            accessibilityRole="button"
                                             style={[styles.colorCircle, { backgroundColor: purple.backgroundColor }]}
                                             onPress={() => this.setState({ color: purple.backgroundColor })}
                                         />
                                     </TouchableOpacity>
                                     <TouchableOpacity style={[styles.outer, this.state.color === grey.backgroundColor && { borderColor: '#757083' }]}>
                                         <TouchableOpacity
+                                            accessibilityLabel="Theme color option: grey"
+                                            accessibilityHint="Let’s you choose the theme color for the chat screen"
+                                            accessibilityRole="button"
                                             style={[styles.colorCircle, { backgroundColor: grey.backgroundColor }]}
                                             onPress={() => this.setState({ color: grey.backgroundColor })}
                                         />
                                     </TouchableOpacity>
                                     <TouchableOpacity style={[styles.outer, this.state.color === green.backgroundColor && { borderColor: '#757083' }]}>
                                         <TouchableOpacity
+                                            accessibilityLabel="Theme color option: green"
+                                            accessibilityHint="Let’s you choose the theme color for the chat screen"
+                                            accessibilityRole="button"
                                             style={[styles.colorCircle, { backgroundColor: green.backgroundColor }]}
                                             onPress={() => this.setState({ color: green.backgroundColor })}
                                         />
@@ -71,6 +83,8 @@ export default class Home extends Component {
                                 </View>
                             </View>
                             <TouchableOpacity
+                                accessibilityLabel="Go to chat room"
+                                accessibilityRole="button"
                                 style={styles.startButton}
                                 onPress={() => this.props.navigation.navigate('Chat', { name: this.state.name, color: this.state.color })}
                             >
