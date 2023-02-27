@@ -3,9 +3,28 @@ import { StyleSheet, View, Platform, KeyboardAvoidingView } from 'react-native';
 import { GiftedChat, Bubble, SystemMessage } from 'react-native-gifted-chat';
 import avatar from '../assets/user-avatar.png';
 
+const firebase = require('firebase');
+require('firebase/firestore');
+
 export default class Chat extends Component {
     constructor(props) {
         super(props);
+
+        //app's Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyCGFYfvjUjAXZ8QJeIWggkbdYjpciDKfhM",
+            authDomain: "chatapp-2ed91.firebaseapp.com",
+            projectId: "chatapp-2ed91",
+            storageBucket: "chatapp-2ed91.appspot.com",
+            messagingSenderId: "543986050358",
+            appId: "1:543986050358:web:62849422d01f6c9ba43f97"
+        }
+
+        //Initialize firebase
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
+
         this.state = {
             messages: []
         }
@@ -16,6 +35,9 @@ export default class Chat extends Component {
         //Render users name on navigation bar at the top
         this.props.navigation.setOptions({ title: name });
         let time = new Date().toLocaleString();
+
+        this.referenceChatMessages = firebase.firestore().collection("messages");
+        this.unsubscribe = this.referenceChatMessages.onSnapshot(this.onCollectionUpdate);
 
         this.setState({
             messages: [
@@ -41,10 +63,44 @@ export default class Chat extends Component {
         })
     }
 
+    componentWillUnmount() {
+        this.unsubscribe();
+    }
+
     onSend(messages = []) {
         this.setState(previousState => ({
             messages: GiftedChat.append(previousState.messages, messages)
-        }))
+        }), () => {
+            this.addMessages(messages);
+        });
+    }
+
+    onCollectionUpdate(querySnapshot) {
+        const messages = [];
+        querySnapshot.forEach((doc) => {
+            let data = doc.data();
+            messages.push({
+                _id: data._id,
+                text: data.text,
+                createdAt: data.createdAt.toDate(),
+                user: data.user
+            })
+        });
+
+        this.setState({ messages });
+    }
+
+    addMessages() {
+        this.referenceChatMessages.add({
+            _id: 3,
+            text: 'How are you?',
+            createdAt: new Date(),
+            user: {
+                _id: 4,
+                name: 'testUser',
+                avatar: avatar,
+            },
+        })
     }
 
     //Customizing bubble style
@@ -75,7 +131,6 @@ export default class Chat extends Component {
 
     render() {
         let { color } = this.props.route.params;
-        let fontColor = color === '#B9C6AE' ? '#222' : '#FFFFFF'; //if the selected theme color is green, font color will be purple.
         return (
             <View style={[styles.mainBox, { backgroundColor: color }]}>
                 <GiftedChat
