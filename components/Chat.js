@@ -2,9 +2,8 @@ import React, { Component } from 'react';
 import { StyleSheet, View, Platform, KeyboardAvoidingView } from 'react-native';
 import { GiftedChat, Bubble, SystemMessage } from 'react-native-gifted-chat';
 import avatar from '../assets/user-avatar.png';
-
-const firebase = require('firebase');
-require('firebase/firestore');
+import firebase from 'firebase';
+import firestore from 'firebase';
 
 export default class Chat extends Component {
     constructor(props) {
@@ -26,7 +25,14 @@ export default class Chat extends Component {
         }
 
         this.state = {
-            messages: []
+            messages: [],
+            uid: undefined,
+            user: {
+                _id: '',
+                avatar: '',
+                name: '',
+            },
+            loggedInText: 'Please standby...',
         }
     }
 
@@ -34,72 +40,78 @@ export default class Chat extends Component {
         let { name } = this.props.route.params;
         //Render users name on navigation bar at the top
         this.props.navigation.setOptions({ title: name });
-        let time = new Date().toLocaleString();
 
         this.referenceChatMessages = firebase.firestore().collection("messages");
         this.unsubscribe = this.referenceChatMessages.onSnapshot(this.onCollectionUpdate);
 
-        this.setState({
-            messages: [
-                //Default first message to greet user
-                {
-                    _id: 1,
-                    text: 'Hello ' + name,
-                    createdAt: new Date(),
+        this.authUnsubscribe = firebase.auth().onAuthStateChanged(
+            user => {
+                if (!user) { firebase.auth().signInAnonymously(); }
+                this.setState({
+                    uid: user.uid,
+                    messages: [],
                     user: {
-                        _id: 2,
-                        name: 'React Native',
-                        avatar: avatar,
+                        _id: user.uid,
+                        avatar: user.avatar,
+                        name: name,
                     },
-                },
-                //System message displays the time user entered the chat room
-                {
-                    _id: 2,
-                    text: `Entered at ${time}`,
-                    createdAt: new Date(),
-                    system: true
-                }
-            ],
-        })
+                    loggedInText: '',
+                });
+
+                this.unsubscribe = this.referenceChatMessages
+                    .orderBy('createdAt', 'desc')
+                    .onSnapshot(this.onCollectionUpdate);
+            }
+        );
+
+        this.unsubscribe = this.referenceChatMessages
+            .orderBy("createdAt", "desc")
+            .onSnapshot(this.onCollectionUpdate);
     }
 
     componentWillUnmount() {
         this.unsubscribe();
+        this.authUnsubscribe();
     }
 
     onSend(messages = []) {
         this.setState(previousState => ({
             messages: GiftedChat.append(previousState.messages, messages)
         }), () => {
+            // callback: after saving state, add message
             this.addMessages(messages);
         });
     }
 
     onCollectionUpdate(querySnapshot) {
         const messages = [];
+        // go through each document
         querySnapshot.forEach((doc) => {
+            // get the QueryDocumentSnapshot's data
             let data = doc.data();
             messages.push({
                 _id: data._id,
                 text: data.text,
                 createdAt: data.createdAt.toDate(),
-                user: data.user
-            })
+                user: {
+                    _id: data.user._id,
+                    avatar: data.user.avatar || '',
+                    name: data.user.name,
+                }
+            });
         });
 
         this.setState({ messages });
     }
 
     addMessages() {
+        const message = this.state.messages[0];
         this.referenceChatMessages.add({
-            _id: 3,
-            text: 'How are you?',
-            createdAt: new Date(),
-            user: {
-                _id: 4,
-                name: 'testUser',
-                avatar: avatar,
-            },
+            _id: message._id,
+            createdAt: message.createdAt,
+            text: message.text || '',
+            uid: this.state.uid,
+            user: message.user,
         })
     }
 
@@ -130,6 +142,7 @@ export default class Chat extends Component {
     }
 
     render() {
+        let { name } = this.props.route.params;
         let { color } = this.props.route.params;
         return (
             <View style={[styles.mainBox, { backgroundColor: color }]}>
@@ -138,7 +151,11 @@ export default class Chat extends Component {
                     renderSystemMessage={this.renderSystemMessage}
                     messages={this.state.messages}
                     onSend={messages => this.onSend(messages)}
-                    user={{ _id: 1 }}
+                    user={{
+                        _id: this.state.user._id,
+                        avatar: avatar,
+                        name: name
+                    }}
                     style={[styles.mainBox, { backgroundColor: color }]}
                 />
                 {Platform.OS === 'android' ? <KeyboardAvoidingView behavior="height" /> : null}
