@@ -5,7 +5,7 @@ import avatar from '../assets/user-avatar.png';
 //importing firebase with code for ^v9
 import { initializeApp } from 'firebase/app';
 import { getFirestore, getDocs } from 'firebase/firestore/lite'
-import { doc, setDoc, getDoc } from "firebase/firestore";
+// import { doc, setDoc } from "firebase/firestore";
 import { collection, addDoc } from "firebase/firestore";
 
 
@@ -110,7 +110,6 @@ export default class Chat extends Component {
 
     async addMessages(msgArray) {
         const data = {
-            _id: 3,
             text: 'How are you?',
             createdAt: new Date(),
             user: {
@@ -119,12 +118,8 @@ export default class Chat extends Component {
                 avatar: avatar,
             },
         }
-        const messagesRef = doc(db, 'messages');
-        // setDoc(messagesRef, { merge: true });
-        // await setDoc(doc(db, "messages", data._id), data);
 
-        await addDoc(collection(messagesRef, "messages"), data);
-
+        await addDoc(collection(db, "messages"), data);
         // await setDoc(doc(db, "messages"), {
         //     _id: 3,
         //     text: 'How are you?',
