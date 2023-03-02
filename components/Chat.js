@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { StyleSheet, View, Platform, KeyboardAvoidingView } from 'react-native';
+import { StyleSheet, View, Text, Platform, KeyboardAvoidingView } from 'react-native';
 import { GiftedChat, Bubble, SystemMessage } from 'react-native-gifted-chat';
 import avatar from '../assets/user-avatar.png';
 import firebase from 'firebase';
@@ -25,14 +25,14 @@ export default class Chat extends Component {
         }
 
         this.state = {
+            uid: 0,
             messages: [],
-            uid: undefined,
             user: {
                 _id: '',
                 avatar: '',
                 name: '',
             },
-            loggedInText: 'Please standby...',
+            loggedInText: 'Logging in... Please wait a moment'
         }
     }
 
@@ -49,13 +49,20 @@ export default class Chat extends Component {
                 if (!user) { firebase.auth().signInAnonymously(); }
                 this.setState({
                     uid: user.uid,
-                    messages: [],
+                    messages: [
+                        {
+                            _id: user.uid + 'system',
+                            text: `${name} logged in`,
+                            createdAt: new Date(),
+                            system: true,
+                        }
+                    ],
                     user: {
                         _id: user.uid,
                         avatar: user.avatar,
                         name: name,
                     },
-                    loggedInText: '',
+                    loggedInText: ''
                 });
 
                 this.unsubscribe = this.referenceChatMessages
@@ -63,27 +70,18 @@ export default class Chat extends Component {
                     .onSnapshot(this.onCollectionUpdate);
             }
         );
-
-        this.unsubscribe = this.referenceChatMessages
-            .orderBy("createdAt", "desc")
-            .onSnapshot(this.onCollectionUpdate);
     }
 
     componentWillUnmount() {
-        this.unsubscribe();
-        this.authUnsubscribe();
+        if (this.referenceChatMessages) {
+            //stop listening for changes
+            this.unsubscribe();
+            //stop listening to authentication
+            this.authUnsubscribe();
+        }
     }
 
-    onSend(messages = []) {
-        this.setState(previousState => ({
-            messages: GiftedChat.append(previousState.messages, messages)
-        }), () => {
-            // callback: after saving state, add message
-            this.addMessages(messages);
-        });
-    }
-
-    onCollectionUpdate(querySnapshot) {
+    onCollectionUpdate = (querySnapshot) => {
         const messages = [];
         // go through each document
         querySnapshot.forEach((doc) => {
@@ -92,7 +90,7 @@ export default class Chat extends Component {
             messages.push({
                 _id: data._id,
                 text: data.text,
-                createdAt: data.createdAt.toDate(),
+                createdAt: data.createdAt ? data.createdAt.toDate() : {},
                 user: {
                     _id: data.user._id,
                     avatar: data.user.avatar || '',
@@ -104,15 +102,24 @@ export default class Chat extends Component {
         this.setState({ messages });
     }
 
-    addMessages() {
+    addMessages = () => {
         const message = this.state.messages[0];
         this.referenceChatMessages.add({
+            uid: this.state.uid,
             _id: message._id,
             createdAt: message.createdAt,
             text: message.text || '',
-            uid: this.state.uid,
             user: message.user,
         })
+    }
+
+    onSend(messages = []) {
+        this.setState(previousState => ({
+            messages: GiftedChat.append(previousState.messages, messages)
+        }), () => {
+            // callback: after saving state, add message
+            this.addMessages();
+        });
     }
 
     //Customizing bubble style
@@ -144,8 +151,10 @@ export default class Chat extends Component {
     render() {
         let { name } = this.props.route.params;
         let { color } = this.props.route.params;
+        let loadTextColor = (color === '#090C08' || color === '#474056') ? '#FFFFFF' : '#090C08';
         return (
             <View style={[styles.mainBox, { backgroundColor: color }]}>
+                {this.state.loggedInText !== '' && <Text style={[styles.loadText, { color: loadTextColor }]}>{this.state.loggedInText}</Text>}
                 <GiftedChat
                     renderBubble={this.renderBubble.bind(this)}
                     renderSystemMessage={this.renderSystemMessage}
@@ -169,5 +178,11 @@ const styles = StyleSheet.create(
         mainBox: {
             flex: 1
         },
+
+        loadText: {
+            textAlign: 'center',
+            fontSize: 20,
+            marginTop: 30
+        }
     }
 );

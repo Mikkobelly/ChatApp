@@ -116,7 +116,6 @@ const styles = StyleSheet.create(
 
         title: {
             fontSize: 45,
-            fontWeight: 600,
             color: '#FFF',
             marginTop: 40
         },
@@ -150,7 +149,6 @@ const styles = StyleSheet.create(
 
         chooseText: {
             fontSize: 16,
-            fontWeight: 300,
             color: '#757083',
             marginBottom: 12
         },
