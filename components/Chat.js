@@ -1,11 +1,17 @@
 import React, { Component } from 'react';
 import { StyleSheet, View, Text, Platform, KeyboardAvoidingView } from 'react-native';
 import { GiftedChat, Bubble, SystemMessage, InputToolbar } from 'react-native-gifted-chat';
-import avatar from '../assets/user-avatar.png';
+
 import firebase from 'firebase';
-// import firestore from 'firebase';
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import NetInfo from '@react-native-community/netinfo';
+
+import MapView from 'react-native-maps';
+import { ActionSheetProvider } from "@expo/react-native-action-sheet";
+import CustomActions from './CustomActions';
+
+import avatar from '../assets/user-avatar.png';
+
 
 export default class Chat extends Component {
     constructor(props) {
@@ -34,8 +40,10 @@ export default class Chat extends Component {
                 avatar: '',
                 name: '',
             },
+            image: null,
+            location: null,
             isConnected: false,
-            loggedInText: 'Logging in... Please wait a moment',
+            loggedInText: 'Logging in... Please wait a moment'
         }
     }
 
@@ -53,7 +61,7 @@ export default class Chat extends Component {
     componentDidMount() {
         let { name } = this.props.route.params;
         //Render users name on navigation bar at the top
-        this.props.navigation.setOptions({ title: name });
+        this.props.navigation.setOptions({ title: `${name}'s Chat` });
 
         //check if the user had internet connection
         NetInfo.fetch().then((connection) => {
@@ -74,7 +82,7 @@ export default class Chat extends Component {
                             messages: [],
                             user: {
                                 _id: user.uid,
-                                avatar: user.avatar,
+                                avatar: avatar,
                                 name: name,
                             },
                             loggedInText: '',
@@ -110,6 +118,8 @@ export default class Chat extends Component {
             createdAt: message.createdAt,
             text: message.text || '',
             user: message.user,
+            image: message.image || null,
+            location: message.location || null
         })
     }
 
@@ -151,13 +161,11 @@ export default class Chat extends Component {
             let data = doc.data();
             messages.push({
                 _id: data._id,
-                text: data.text,
+                text: data.text || '',
                 createdAt: data.createdAt ? data.createdAt.toDate() : {},
-                user: {
-                    _id: data.user._id,
-                    avatar: data.user.avatar || '',
-                    name: data.user.name,
-                }
+                user: data.user,
+                image: data.image || null,
+                location: data.location || null
             });
         });
 
@@ -186,6 +194,30 @@ export default class Chat extends Component {
         )
     }
 
+    //Render customized action button
+    renderCustomActions = (props) => {
+        return <CustomActions {...props} />;
+    }
+
+    //custom map view
+    renderCustomView(props) {
+        const { currentMessage } = props;
+        if (currentMessage.location) {
+            return (
+                <MapView
+                    style={{ width: 150, height: 100, borderRadius: 13, margin: 3 }}
+                    region={{
+                        latitude: currentMessage.location.latitude,
+                        longitude: currentMessage.location.longitude,
+                        latitudeDelta: 0.0922,
+                        longitudeDelta: 0.0421,
+                    }}
+                />
+            );
+        }
+        return null;
+    }
+
     //Customoze system mesage
     renderSystemMessage(props) {
         return (
@@ -209,26 +241,30 @@ export default class Chat extends Component {
         };
 
         return (
-            <View style={[styles.mainBox, { backgroundColor: color }]}>
-                {this.state.loggedInText !== '' && <Text style={[styles.loadText, { color: loadTextColor }]}>{this.state.loggedInText}</Text>}
-                <GiftedChat
-                    renderInputToolbar={this.renderInputToolbar.bind(this)}
-                    renderBubble={this.renderBubble.bind(this)}
-                    renderSystemMessage={this.renderSystemMessage.bind(this)}
-                    // if offline, append offlineAlert message before message array
-                    messages={
-                        this.state.isConnected ? this.state.messages : [offlineAlert, ...this.state.messages]
-                    }
-                    onSend={messages => this.onSend(messages)}
-                    user={{
-                        _id: this.state.user._id,
-                        avatar: avatar,
-                        name: name
-                    }}
-                    style={[styles.mainBox, { backgroundColor: color }]}
-                />
-                {Platform.OS === 'android' ? <KeyboardAvoidingView behavior="height" /> : null}
-            </View>
+            <ActionSheetProvider>
+                <View style={[styles.mainBox, { backgroundColor: color }]}>
+                    {this.state.loggedInText !== '' && <Text style={[styles.loadText, { color: loadTextColor }]}>{this.state.loggedInText}</Text>}
+                    <GiftedChat
+                        renderInputToolbar={this.renderInputToolbar.bind(this)}
+                        renderBubble={this.renderBubble.bind(this)}
+                        renderActions={this.renderCustomActions}
+                        renderCustomView={this.renderCustomView}
+                        renderSystemMessage={this.renderSystemMessage.bind(this)}
+                        messages={
+                            //If offline, append offlineAlert message before message array
+                            this.state.isConnected ? this.state.messages : [offlineAlert, ...this.state.messages]
+                        }
+                        onSend={messages => this.onSend(messages)}
+                        user={{
+                            _id: this.state.user._id,
+                            avatar: avatar,
+                            name: name
+                        }}
+                        style={[styles.mainBox, { backgroundColor: color }]}
+                    />
+                    {Platform.OS === 'android' ? <KeyboardAvoidingView behavior="height" /> : null}
+                </View>
+            </ActionSheetProvider>
         )
     }
 }
