@@ -35,11 +35,6 @@ export default class Chat extends Component {
         this.state = {
             uid: 0,
             messages: [],
-            user: {
-                _id: '',
-                avatar: '',
-                name: '',
-            },
             image: null,
             location: null,
             isConnected: false,
@@ -80,11 +75,6 @@ export default class Chat extends Component {
                         this.setState({
                             uid: user.uid,
                             messages: [],
-                            user: {
-                                _id: user.uid,
-                                avatar: avatar,
-                                name: name,
-                            },
                             loggedInText: '',
                             isConnected: true,
                         });
@@ -256,7 +246,7 @@ export default class Chat extends Component {
                         }
                         onSend={messages => this.onSend(messages)}
                         user={{
-                            _id: this.state.user._id,
+                            _id: this.state.uid,
                             avatar: avatar,
                             name: name
                         }}
