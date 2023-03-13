@@ -5,20 +5,20 @@
 Chat App is an application for mobile device (both Androind and iOS) which provides users with a chat interface and options to share images and their location.
 It is a cross-platform native and real-time application developed using Expo and written in React Native. Library Gifted Chat is used to create chat interface with customized message bubbles. Users can choose a theme color on the start page before joining the chat, send images as well as their current location in a map view. Google firebase is used to authenticate users anonymously and store data in the cloud storage and the local storage.
 
-## Key features:
+## Key features
 - In the start page, users can enter their name and choose a background color for the chat screen before joining the chat.
 - Users can send images and thier location
 - Data gets stored online and offline
 
 
-## Technologies: 
+## Technologies 
 
 * React Native
 * Expo
 * Gifted Chat
 * Google firebase
 
-## Dependencies: 
+## Dependencies 
 
     "@react-native-async-storage/async-storage": "~1.17.3",
     "@react-native-community/masked-view": "^0.1.11",
@@ -42,11 +42,11 @@ It is a cross-platform native and real-time application developed using Expo and
     "react-native-screens": "~3.18.0",
     "react-navigation": "^4.4.4"
 
-## Dev Dependencies:
+## Dev Dependencies
 
     "@babel/core": "^7.20.0"
 
-## Setting up the development environment:
+## Setting up the development environment
 
 - Clone the repository: `git clone https://github.com/Mikkobelly/ChatApp`
 - Install Expo CLI as a global npm package: `npm install -g expo-cli`
