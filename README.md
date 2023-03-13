@@ -57,6 +57,6 @@ It is a cross-platform native and real-time application developed using Expo and
  - Start the project: `npm start` or `expo start`
  - In case Expo cannot detect the running project, try running it with `npx expo start --tunnel`
 
-## Screenshots
+## App showcase
 
 ![screenshot](assets/ChatApp_screenshot.jpeg)
